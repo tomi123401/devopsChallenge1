@@ -1,0 +1,21 @@
+FROM node:12.2
+
+ENV HOME=/home/app
+
+RUN apt-get update && apt-get install htop
+
+COPY public $HOME/node_docker/frontend/public
+
+COPY src $HOME/node_docker/frontend/public
+
+COPY package-lock.json package.json $HOME/node_docker/frontend/
+
+WORKDIR $HOME/node_docker/frontend
+
+RUN npm install --silent --progress=false
+
+COPY . $HOME/node_docker/frontend/
+
+EXPOSE 3000
+
+CMD ["/bin/bash", "-c", "npm ci; npm start"]

@@ -1,0 +1,29 @@
+def REMOTE_USER = "ec2-user"
+def REMOTE_HOST = "52.206.185.29"
+pipeline {
+    agent any
+    stage ('Provision Infrastructure'){
+        steps {
+            sh """
+                wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
+                echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
+                apt update -y && apt install -y terraform
+                echo $PATH
+                mv ~/Downloads/terraform /usr/local/bin/
+                terraform init
+                terraform plan
+                terraform apply --auto-approve
+            """
+        }
+    }
+    stage ('Deploy') {
+        steps {
+            withCredentials([sshUserPrivateKey(credentialsId: "yourkeyid", keyFileVariable: 'keyfile')]) {
+                sh 'scp deploy.sh ${REMOTE_USER}@${REMOTE_HOST}:~/'
+                sh 'ssh ${REMOTE_USER}@${REMOTE_HOST} "docker run -p 8080:8080 -d tomi12340/npm-backend:latest -t backend-app"'
+                sh 'sleep 5'
+                sh 'ssh ${REMOTE_USER}@${REMOTE_HOST} "docker run -p 3000:3000 -d tomi12340/npm-backend:latest -t frontend-app"'
+            }
+         }
+    }
+}

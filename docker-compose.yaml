@@ -1,0 +1,16 @@
+version: '3'
+services:
+  npm-backend:
+    image: tomi12340/npm-backend:latest
+    container_name: npm-backend
+    ports:
+      - "8080:8080"
+    restart: always
+  npm-frontend:
+    image: tomi12340/npm-frontend:latest
+    container_name: npm-frontend
+    ports:
+      - "3000:3000"
+    restart: always
+    depends_on:
+      - npm-backend
