@@ -15,6 +15,7 @@ Fork this repo as a base. You may change any code in this repository to suit the
 
 # Prereqs:
 * Create an elastic ip and change the association id in main.tf line 41
+* Create Key-Pair for SSH Access
 
 # Instructions
 * Build the dockerfiles and push to docker repositories using created scripts in respective folders
